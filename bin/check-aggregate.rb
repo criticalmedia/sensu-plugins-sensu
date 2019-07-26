@@ -15,10 +15,12 @@
 # LICENSE for details.
 
 require 'sensu-plugin/check/cli'
+require 'sensu-plugin/utils'
 require 'rest-client'
 require 'json'
 
 class CheckAggregate < Sensu::Plugin::Check::CLI
+  include Sensu::Plugin::Utils
   option :api,
          short: '-a URL',
          long: '--api URL',
@@ -149,12 +151,26 @@ class CheckAggregate < Sensu::Plugin::Check::CLI
          description: 'number of nodes with stale data before warning',
          proc: proc(&:to_i)
 
+  # @return [Hash]
+  def api_settings
+    settings["api"]
+  end
+
   def api_request(resource)
+    username = config[:user]
+    password = config[:password]
+    if config[:user] == nil and api_settings != nil and api_settings.key?('user')
+      username = api_settings['user']
+    end
+    if config[:password] == nil and api_settings != nil and api_settings.key?('password')
+      password = api_settings['password']
+    end
+
     verify_mode = OpenSSL::SSL::VERIFY_PEER
     verify_mode = OpenSSL::SSL::VERIFY_NONE if config[:insecure]
     request = RestClient::Resource.new(config[:api] + resource, timeout: config[:timeout],
-                                                                user: config[:user],
-                                                                password: config[:password],
+                                                                user: username,
+                                                                password: password,
                                                                 verify_ssl: verify_mode)
     JSON.parse(request.get, symbolize_names: true)
   rescue Errno::ECONNREFUSED
