@@ -6,6 +6,10 @@ Which is based on [Keep A Changelog](http://keepachangelog.com/)
 
 ## [Unreleased]
 
+## [4.3.cm] - 2019-07-26
+### Changed
+- check-aggregate.rb: Use API creds from api.json file if avaiable by default
+
 ## [4.3.0] - 2019-07-02
 ### Changed
 - update rest-client to 2.0.2 to fix rest-client issue with 1.8.0 and ruby > 2.4.x
